@@ -254,7 +254,12 @@
     display:flex;flex-direction:column;z-index:40;
     border-right:3px double var(--brass);
   }
-  .rail-brand{padding:26px 22px 20px;border-bottom:1px solid rgba(243,236,218,0.14);display:flex;align-items:center;gap:14px;}
+  .rail-brand{
+    padding:26px 22px 20px;border-bottom:1px solid rgba(243,236,218,0.14);
+    display:flex;align-items:center;gap:14px;
+    cursor:pointer;user-select:none;transition:opacity .2s;
+  }
+  .rail-brand:hover{opacity:0.88;}
   .rail-brand-num{font-family:var(--font-display);font-size:30px;font-weight:700;color:var(--brass-light);}
   .rail-brand-text{font-family:var(--font-mono);font-size:11.5px;letter-spacing:0.05em;line-height:1.4;color:#C9C0A6;text-transform:uppercase;white-space:nowrap;}
   .rail-list{flex:1;overflow-y:auto;padding:10px 0 18px;}
@@ -385,6 +390,129 @@
   .ledger-rail{transition:transform .3s ease;}
   #deck{transition:margin-left .3s ease;}
   .progress-track{transition:left .3s ease;}
+
+  /* ---------- interactive tooltips ---------- */
+  .term-tip{
+    position:relative;
+    display:inline;
+    border-bottom:1.5px dotted var(--brass);
+    cursor:help;
+    color:inherit;
+    text-decoration:none;
+    transition:border-color .2s;
+  }
+  .term-tip:hover{border-bottom-color:var(--garnet);}
+  .term-tip::after{
+    content:attr(data-def);
+    position:absolute;
+    bottom:calc(100% + 8px);
+    left:50%;
+    transform:translateX(-50%) translateY(4px);
+    background:var(--navy);
+    color:#F3ECDA;
+    font-family:var(--font-mono);
+    font-size:11.5px;
+    font-style:normal;
+    font-weight:400;
+    line-height:1.45;
+    letter-spacing:0.02em;
+    padding:8px 12px;
+    border:1px solid var(--brass);
+    border-radius:3px;
+    box-shadow:0 10px 28px rgba(0,0,0,0.45);
+    white-space:normal;
+    width:max-content;
+    max-width:280px;
+    pointer-events:none;
+    opacity:0;
+    visibility:hidden;
+    transition:opacity .2s ease, transform .2s ease, visibility .2s;
+    z-index:80;
+    text-align:left;
+  }
+  .term-tip::before{
+    content:'';
+    position:absolute;
+    bottom:calc(100% + 2px);
+    left:50%;
+    transform:translateX(-50%);
+    border-width:6px 6px 0 6px;
+    border-style:solid;
+    border-color:var(--navy) transparent transparent transparent;
+    opacity:0;
+    visibility:hidden;
+    transition:opacity .2s ease, visibility .2s;
+    z-index:81;
+  }
+  .term-tip:hover::after, .term-tip:focus::after, .term-tip.active-tip::after{
+    opacity:1;
+    visibility:visible;
+    transform:translateX(-50%) translateY(0);
+  }
+  .term-tip:hover::before, .term-tip:focus::before, .term-tip.active-tip::before{
+    opacity:1;
+    visibility:visible;
+  }
+  @media (max-width:600px){
+    .term-tip::after{max-width:210px;font-size:11px;}
+  }
+
+  /* ---------- image lightbox ---------- */
+  .photo-frame .img-box, .cover-media .img-box{
+    cursor:zoom-in;
+    position:relative;
+  }
+  .photo-frame .img-box::after, .cover-media .img-box::after{
+    content:'Click to zoom';
+    position:absolute;right:8px;bottom:8px;
+    background:rgba(15,24,34,0.78);color:var(--brass-light);
+    font-family:var(--font-mono);font-size:9.5px;letter-spacing:0.06em;
+    text-transform:uppercase;padding:3px 7px;border-radius:2px;
+    border:1px solid rgba(243,236,218,0.2);
+    opacity:0;transform:translateY(4px);
+    transition:opacity .2s ease, transform .2s ease;
+    pointer-events:none;z-index:3;
+  }
+  .photo-frame .img-box:hover::after, .cover-media .img-box:hover::after{
+    opacity:1;transform:translateY(0);
+  }
+  .lightbox-overlay{
+    position:fixed;inset:0;background:rgba(10,16,24,0.92);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    z-index:100;display:flex;align-items:center;justify-content:center;
+    padding:24px;opacity:0;pointer-events:none;
+    transition:opacity .25s ease;
+  }
+  .lightbox-overlay.show{opacity:1;pointer-events:auto;}
+  .lightbox-content{
+    display:flex;flex-direction:column;align-items:center;max-width:92vw;max-height:92vh;
+    transform:scale(0.95);transition:transform .25s cubic-bezier(0.2,0,0,1);
+  }
+  .lightbox-overlay.show .lightbox-content{transform:scale(1);}
+  .lightbox-content img{
+    max-width:min(90vw, 840px);max-height:76vh;object-fit:contain;
+    border:2px solid var(--brass);border-radius:3px;
+    box-shadow:0 24px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(243,236,218,0.15);
+    background:#101820;
+  }
+  .lightbox-caption{
+    font-family:var(--font-mono);font-size:12.5px;line-height:1.5;color:#E9E1CB;
+    text-align:center;margin:12px 0 6px;max-width:72ch;
+  }
+  .lightbox-hint{
+    font-family:var(--font-mono);font-size:11px;color:#8E9A88;letter-spacing:0.04em;
+    opacity:0.8;
+  }
+  .lightbox-hint kbd{
+    background:rgba(243,236,218,0.12);border:1px solid rgba(243,236,218,0.25);
+    padding:1px 5px;border-radius:2px;font-size:10px;color:var(--brass-light);
+  }
+  .lightbox-close{
+    position:absolute;top:20px;right:24px;background:none;border:none;
+    color:var(--brass-light);font-size:36px;cursor:pointer;line-height:1;
+    padding:4px 10px;border-radius:3px;transition:color .2s, transform .15s;
+  }
+  .lightbox-close:hover{color:#fff;transform:scale(1.1);}
 </style>
 </head>
 <body>
@@ -404,12 +532,11 @@
 <div class="rail-overlay" id="railOverlay"></div>
 
 <nav class="ledger-rail" id="ledgerRail" aria-label="Chapter sections">
-  <div class="rail-brand">
+  <div class="rail-brand" id="railBrand" title="Chapter 4 · Rizal at the Ateneo (Go to Cover)">
     <span class="rail-brand-num">IV</span>
     <span class="rail-brand-text">Rizal at<br>the Ateneo<br>1872&ndash;1877</span>
   </div>
   <ol class="rail-list" id="railList">
-    <li><button data-i="0"><span class="rn">00</span> Cover</button></li>
     <li><button data-i="1"><span class="rn">01</span> Introduction</button></li>
     <li><button data-i="2"><span class="rn">02</span> Entering the Ateneo</button></li>
     <li><button data-i="3"><span class="rn">03</span> The Jesuit System</button></li>
@@ -448,8 +575,8 @@
       <div class="cover-text">
         <p class="eyebrow">Chapter 4 &middot; Reporter No. 1</p>
         <h1>Scholastic Triumphs<br>at Ateneo de Manila</h1>
-        <p class="cover-sub">How an eleven-year-old provinciano from Calamba, arriving in a city still shadowed by execution and imprisonment, became &ldquo;the pride of the Jesuits&rdquo; &mdash; the making of Jos&eacute; Rizal, 1872&ndash;1877.</p>
-        <p class="cover-meta">Ateneo Municipal de Manila &middot; Intramuros</p>
+        <p class="cover-sub">How an eleven-year-old <span class="term-tip" data-def="A native of the provinces outside Manila (in Rizal's case, Calamba, Laguna).">provinciano</span> from Calamba, arriving in a city still shadowed by execution and imprisonment, became &ldquo;the pride of the Jesuits&rdquo; &mdash; the making of Jos&eacute; Rizal, 1872&ndash;1877.</p>
+        <p class="cover-meta">Ateneo Municipal de Manila &middot; <span class="term-tip" data-def="The historic 0.67 km² walled city of Manila, seat of Spanish colonial government.">Intramuros</span></p>
         <button class="cover-scroll" id="beginBtn">Begin the record <svg><use href="#icon-down"/></svg></button>
       </div>
       <div class="cover-media">
@@ -477,7 +604,7 @@
             <h2>A Boy Sent to Manila</h2>
             <div class="rule-orn"></div>
           </header>
-          <p class="lede reveal d1">In February 1872, three Filipino priests &mdash; Mariano G&oacute;mez, Jos&eacute; Burgos, and Jacinto Zamora, remembered together as <strong>GomBurZa</strong> &mdash; were garroted at Bagumbayan on charges of subversion. Rizal&rsquo;s own brother, Paciano, had once lived and studied under Father Burgos&rsquo;s roof.</p>
+          <p class="lede reveal d1">In February 1872, three Filipino priests &mdash; Mariano G&oacute;mez, Jos&eacute; Burgos, and Jacinto Zamora, remembered together as <strong class="term-tip" data-def="Fathers Mariano Gómez, José Burgos, and Jacinto Zamora — Filipino secular priests martyred in 1872.">GomBurZa</strong> &mdash; were <span class="term-tip" data-def="Execution by strangulation using an iron collar tightened by a screw.">garroted</span> at Bagumbayan on charges of subversion. Rizal&rsquo;s own brother, Paciano, had once lived and studied under Father Burgos&rsquo;s roof.</p>
           <p class="body-text reveal d2">That same year their mother, Do&ntilde;a Teodora Alonso, was still in prison on a fabricated poisoning charge, having been made to walk miles to the provincial jail. It was into this charged, watchful season &mdash; four months after the executions &mdash; that ten-going-on-eleven-year-old Jose was sent from Calamba to Manila to continue his schooling.</p>
           <p class="body-text reveal d3"><strong>The school waiting for him:</strong> the Ateneo Municipal de Manila had begun in 1817 as the Escuela P&iacute;a, a charity school for poor boys; passed to city administration in 1831; and was handed to the Society of Jesus in 1859, renamed Ateneo Municipal in 1865. It was the long-standing rival of the Dominican-run Colegio de San Juan de Letran.</p>
         </div>
@@ -526,8 +653,8 @@
             <li><span class="t-label">June 10, 1872</span><p>Jose, escorted by his brother Paciano, sits entrance exams &mdash; Christian Doctrine, arithmetic, reading &mdash; at the Colegio de San Juan de Letran, and passes.</p></li>
             <li><span class="t-label">A change of plan</span><p>His father Francisco had first favored Letran. At the last moment, he chose the Jesuits&rsquo; Ateneo instead.</p></li>
             <li><span class="t-label">Turned away, at first</span><p>Registrar Fr. Mag&iacute;n Ferrando refused him: he had arrived late for registration, and looked too frail and small for an eleven-year-old.</p></li>
-            <li><span class="t-label">A name is chosen</span><p>With help from Manuel Xerez Burgos &mdash; nephew of the executed Fr. Jos&eacute; Burgos &mdash; Jose is admitted, enrolling under a new surname, <strong>Rizal</strong>, since &ldquo;Mercado&rdquo; had drawn official suspicion.</p></li>
-            <li><span class="t-label">A room outside the walls</span><p>He boards on Calle Caraballo, a 25-minute walk from Intramuros, with a spinster named Titay who owed the Mercado family &#8369;300.</p></li>
+            <li><span class="t-label">A name is chosen</span><p>With help from Manuel Xerez Burgos &mdash; nephew of the executed Fr. Jos&eacute; Burgos &mdash; Jose is admitted, enrolling under a new surname, <strong>Rizal</strong>, since &ldquo;<span class="term-tip" data-def="Rizal's original paternal family surname, meaning 'market' in Spanish.">Mercado</span>&rdquo; had drawn official suspicion.</p></li>
+            <li><span class="t-label">A room outside the walls</span><p>He boards on Calle Caraballo, a 25-minute walk from <span class="term-tip" data-def="The historic 0.67 km² walled city of Manila, seat of Spanish colonial government.">Intramuros</span>, with a spinster named Titay who owed the Mercado family &#8369;300.</p></li>
           </ul>
         </div>
       </div>
@@ -544,12 +671,12 @@
         <h2>Two Empires at War for a Grade</h2>
         <div class="rule-orn"></div>
       </header>
-      <p class="lede reveal d1">The Jesuits ran the Ateneo on the old <em>ratio studiorum</em> &mdash; rigid discipline braided with constant incentive, &ldquo;<em>ad majorem Dei gloriam</em>.&rdquo; The day opened and closed in prayer; students heard Mass before class. Beyond religion, the curriculum reached into humanities, science, and physical culture, with vocational tracks in agriculture, commerce, mechanics, and surveying feeding into the Bachelor of Arts.</p>
+      <p class="lede reveal d1">The Jesuits ran the Ateneo on the old <em class="term-tip" data-def="'Plan of Studies' — the standardized Jesuit curriculum emphasizing classical humanities, rhetoric, and strict discipline.">ratio studiorum</em> &mdash; rigid discipline braided with constant incentive, &ldquo;<em class="term-tip" data-def="'For the greater glory of God' — the foundational Latin motto of the Society of Jesus (Jesuits).">ad majorem Dei gloriam</em>.&rdquo; The day opened and closed in prayer; students heard Mass before class. Beyond religion, the curriculum reached into humanities, science, and physical culture, with vocational tracks in agriculture, commerce, mechanics, and surveying feeding into the Bachelor of Arts.</p>
       <p class="body-text reveal d2">To sharpen competition, every class was split into two rival &ldquo;empires&rdquo; &mdash; and any student, however lowly ranked, could challenge an officer above him to answer the day&rsquo;s lesson.</p>
 
       <div class="empire-grid reveal d3">
         <div class="empire-col empire-roman">
-          <div class="empire-pennant">Roman Empire<span>Internos &middot; Boarders</span></div>
+          <div class="empire-pennant">Roman Empire<span><span class="term-tip" data-def="Boarding students living inside the Ateneo dormitory.">Internos</span> &middot; Boarders</span></div>
           <ol class="rank-ladder">
             <li data-n="1">Emperor</li>
             <li data-n="2">Tribune</li>
@@ -560,7 +687,7 @@
         </div>
         <div class="empire-vs">VS</div>
         <div class="empire-col empire-carthage">
-          <div class="empire-pennant">Carthaginian Empire<span>Externos &middot; Day Students</span></div>
+          <div class="empire-pennant">Carthaginian Empire<span><span class="term-tip" data-def="Day scholars living in boarding houses outside the school walls.">Externos</span> &middot; Day Students</span></div>
           <ol class="rank-ladder">
             <li data-n="1">Emperor</li>
             <li data-n="2">Tribune</li>
@@ -591,7 +718,7 @@
             <span class="rank-badge-value">Standard&#8209;Bearer &rarr; Emperor (within a month)</span>
           </div>
           <p class="body-text reveal d2">His first professor, Fr. Jos&eacute; Bech &mdash; Rizal later described him as &ldquo;tall, thin&hellip; an ascetic face, severe and inspired, small deep-sunken eyes.&rdquo; Knowing little Spanish, Jose began at the very tail of the Carthaginian line.</p>
-          <p class="body-text reveal d3">Within a month he had climbed to <strong>Emperor</strong>, the best in his class. To sharpen his still-shaky Castilian, he paid three pesos for private lessons at Santa Isabel College during the noon recess. He closed the first quarter marked &ldquo;Excellent&rdquo; &mdash; then eased off in the second half, stung by a teacher&rsquo;s remark, and finished the year in second place, grades still Excellent.</p>
+          <p class="body-text reveal d3">Within a month he had climbed to <strong class="term-tip" data-def="The highest rank in the classroom empire, awarded to the top student.">Emperor</strong>, the best in his class. To sharpen his still-shaky Castilian, he paid three pesos for private lessons at <span class="term-tip" data-def="Historic college in Manila where Rizal took private Spanish lessons during noon breaks.">Santa Isabel College</span> during the noon recess. He closed the first quarter marked &ldquo;Excellent&rdquo; &mdash; then eased off in the second half, stung by a teacher&rsquo;s remark, and finished the year in second place, grades still Excellent.</p>
         </div>
         <div class="split-media reveal d2">
           <div class="photo-frame">
@@ -638,7 +765,7 @@
         <span class="rank-badge-label">Class Rank, Year Two</span>
         <span class="rank-badge-value">Lost the lead &rarr; Emperor again, plus a gold medal</span>
       </div>
-      <p class="body-text reveal d2">Back in Manila, he now boarded inside the Walled City itself &mdash; at No. 8 Calle Magallanes, under a landlady the students called Do&ntilde;a Pepay. He slipped early in the term, then repented and studied harder, reclaiming the rank of Emperor by year&rsquo;s end.</p>
+      <p class="body-text reveal d2">Back in Manila, he now boarded inside the Walled City itself &mdash; at No. 8 <span class="term-tip" data-def="A historic street in Intramuros where Rizal boarded in his second year.">Calle Magallanes</span>, under a landlady the students called Do&ntilde;a Pepay. He slipped early in the term, then repented and studied harder, reclaiming the rank of Emperor by year&rsquo;s end.</p>
       <p class="body-text reveal d3">Three old classmates from Bi&ntilde;an &mdash; schoolmates under Maestro Justiniano years before &mdash; turned up in his class that year. He closed the term with excellent marks across every subject, and a gold medal to show for it.</p>
     </div>
   </section>
@@ -678,19 +805,30 @@
   <section class="slide">
     <div class="slide-inner">
       <div class="stamp">SUMMER<br>1874</div>
-      <header class="slide-head reveal">
-        <p class="eyebrow">08 &middot; Teenage Interest in Reading</p>
-        <h2>A Reader Awakens</h2>
-        <div class="rule-orn"></div>
-      </header>
-      <div class="split">
-        <div>
-          <p class="body-text reveal d1">That vacation, one novel changed him: <em>The Count of Monte Cristo</em>, by Alexandre Dumas. Edmond Dant&egrave;s&rsquo;s unjust imprisonment, his escape from the Ch&acirc;teau d&rsquo;If, the buried treasure, the long, patient revenge &mdash; it seized his imagination and never entirely let go.</p>
-          <p class="pull-quote reveal d2" style="margin-top:6px;">Imagine how a romantic youngster of twelve would delight in the Count of Monte Cristo!<cite>&mdash; Rizal, in his own memoir</cite></p>
+      <div class="split reverse">
+        <div class="split-media reveal">
+          <div class="photo-frame">
+            <div class="img-box" style="background:#15212d;min-height:360px;">
+              <img src="public/Count_of_Monte_Cristo.jpg" alt="Edmond Dantès illustration from The Count of Monte Cristo"
+                   style="object-fit:contain;padding:10px;background:#fdfcf9;"
+                   onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+              <div class="photo-fallback">
+                <svg><use href="#icon-picture"/></svg>
+                <span>The Count of Monte Cristo</span>
+              </div>
+            </div>
+            <p class="photo-caption">Edmond Dant&egrave;s from Dumas&rsquo;s <em>The Count of Monte Cristo</em> &mdash; the novel that thrilled young Rizal. <em>Engraving by G. Staal, 1888. Public domain.</em></p>
+          </div>
         </div>
         <div>
-          <p class="body-text reveal d1">He didn&rsquo;t stop at fiction. Under the pretext of needing it &ldquo;for general history,&rdquo; he talked his father into buying C&eacute;sar Cant&uacute;&rsquo;s multi-volume <em>Universal History</em>.</p>
-          <p class="body-text reveal d3">He also read <em>Travels in the Philippines</em> by the German scientist-traveler Feodor Jagor &mdash; struck by Jagor&rsquo;s sharp critique of Spanish colonial rule, and by a prophecy that would prove eerily accurate: that Spain would someday lose the islands, and the United States would take her place.</p>
+          <header class="slide-head reveal">
+            <p class="eyebrow">08 &middot; Teenage Interest in Reading</p>
+            <h2>A Reader Awakens</h2>
+            <div class="rule-orn"></div>
+          </header>
+          <p class="body-text reveal d1">That vacation, one novel changed him: <em>The Count of Monte Cristo</em>, by Alexandre Dumas. Edmond Dant&egrave;s&rsquo;s unjust imprisonment, his escape from the <span class="term-tip" data-def="The island fortress prison off Marseille in Dumas's 'The Count of Monte Cristo'.">Ch&acirc;teau d&rsquo;If</span>, the buried treasure, the long, patient revenge &mdash; it seized his imagination and never entirely let go.</p>
+          <p class="pull-quote reveal d2" style="margin-top:8px;">Imagine how a romantic youngster of twelve would delight in the Count of Monte Cristo!<cite>&mdash; Rizal, in his own memoir</cite></p>
+          <p class="body-text reveal d3" style="margin-top:14px;"><strong>Beyond fiction:</strong> He talked his father into buying C&eacute;sar Cant&uacute;&rsquo;s multi-volume <em>Universal History</em>, and devoured <span class="term-tip" data-def="German scientist-traveler whose 1873 book accurately foretold the end of Spanish rule in the Philippines.">Feodor Jagor</span>&rsquo;s <em>Travels in the Philippines</em> &mdash; struck by its eerie prophecy that Spain would one day lose the archipelago to the United States.</p>
         </div>
       </div>
     </div>
@@ -725,7 +863,7 @@
         <span class="rank-badge-value">Interno &middot; Topped every classmate &middot; 5 gold medals</span>
       </div>
       <div class="split">
-        <p class="body-text reveal d2">On June 16, 1875, Rizal became a boarder &mdash; an <em>interno</em> &mdash; for the first time. His new professor, Fr. Francisco de Paula S&aacute;nchez, would leave the deepest mark of any of his Ateneo teachers.</p>
+        <p class="body-text reveal d2">On June 16, 1875, Rizal became a boarder &mdash; an <em class="term-tip" data-def="A boarding student living inside the Ateneo dormitory.">interno</em> &mdash; for the first time. His new professor, <strong class="term-tip" data-def="Rizal's favorite Ateneo professor who inspired his love for poetry and rhetoric.">Fr. Francisco de Paula S&aacute;nchez</strong>, would leave the deepest mark of any of his Ateneo teachers.</p>
         <p class="body-text reveal d3">Rizal called him &ldquo;a model of uprightness, earnestness, and love for the advancement of his pupils,&rdquo; and it was S&aacute;nchez who first urged him to take his verse seriously. He topped every classmate that year and returned to Calamba in March 1876 with five gold medals to lay before his parents.</p>
       </div>
     </div>
@@ -760,7 +898,7 @@
           <div class="rank-badge reveal d3">
             <svg><use href="#icon-medal"/></svg>
             <span class="rank-badge-label">Commencement Day &middot; March 23, 1877</span>
-            <span class="rank-badge-value">Bachelor of Arts, Highest Honors &middot; Age 16</span>
+            <span class="rank-badge-value"><span class="term-tip" data-def="Bachelor of Arts — diploma qualifying students for university degree faculties (Medicine, Law, Philosophy).">Bachelor of Arts</span>, Highest Honors &middot; Age 16</span>
           </div>
         </div>
       </div>
@@ -779,11 +917,11 @@
       <div class="activity-grid reveal d1">
         <div class="activity-item">
           <span class="a-mark">&#8213;</span>
-          <div><h4>Marian Congregation</h4><p>Active member, later Secretary; devoted to the Immaculate Conception, the Ateneo&rsquo;s patroness.</p></div>
+          <div><h4><span class="term-tip" data-def="Devout student religious sodality devoted to the Virgin Mary; Rizal served as its Secretary.">Marian Congregation</span></h4><p>Active member, later Secretary; devoted to the Immaculate Conception, the Ateneo&rsquo;s patroness.</p></div>
         </div>
         <div class="activity-item">
           <span class="a-mark">&#8213;</span>
-          <div><h4>Academy of Spanish Literature &amp; Academy of Natural Sciences</h4><p>Exclusive societies open only to the school&rsquo;s top scholars.</p></div>
+          <div><h4><span class="term-tip" data-def="Exclusive scholastic academies open only to top-ranking students.">Academy of Spanish Literature &amp; Academy of Natural Sciences</span></h4><p>Exclusive societies open only to the school&rsquo;s top scholars.</p></div>
         </div>
         <div class="activity-item">
           <span class="a-mark">&#8213;</span>
@@ -809,19 +947,31 @@
   <section class="slide">
     <div class="slide-inner">
       <div class="stamp">1875&ndash;77</div>
-      <header class="slide-head reveal">
-        <p class="eyebrow">13 &middot; Sculptural Works in Ateneo</p>
-        <h2>Carved in Batikuling</h2>
-        <div class="rule-orn"></div>
-      </header>
-      <div class="split">
-        <div>
-          <p class="body-text reveal d1">With nothing but a pocket-knife and a block of batikuling hardwood, Rizal carved an image of the Virgin Mary so fine it startled his Jesuit professors. Impressed, Fr. Jos&eacute; Lleonart asked for a Sacred Heart of Jesus next; days later, Rizal delivered a nine-inch statuette.</p>
-          <p class="body-text reveal d2">Lleonart meant to carry it home to Spain but, absent-minded, left it behind. The boarding students mounted it above the dormitory door, where it stayed for twenty years &mdash; a quiet honor to their school&rsquo;s greatest alumnus.</p>
+      <div class="split reverse">
+        <div class="split-media reveal">
+          <div class="photo-frame">
+            <div class="img-box" style="background:#15212d;min-height:360px;">
+              <img src="public/Sacred_Heart_Rizal.png" alt="Sacred Heart of Jesus statuette carved by José Rizal"
+                   style="object-fit:contain;padding:12px;"
+                   onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+              <div class="photo-fallback">
+                <svg><use href="#icon-picture"/></svg>
+                <span>Sacred Heart of Jesus</span>
+              </div>
+            </div>
+            <p class="photo-caption">The <em>Sacred Heart of Jesus</em>, carved by Rizal in <span class="term-tip" data-def="Litsea leytensis — soft Philippine hardwood prized for woodcarving.">batikuling</span> wood at age 14 with a pocket knife. <em>From Austin Craig, 1913. Public domain.</em></p>
+          </div>
         </div>
         <div>
-          <p class="pull-quote reveal d3" style="margin-top:0;">Other times, Brother, other times. I no longer believe in such things.<cite>&mdash; Rizal, on seeing the carving again years later, as a young liberal</cite></p>
-          <p class="body-text reveal">Yet decades on, awaiting execution in Fort Santiago, Rizal asked a visiting Jesuit whether the little carving still existed. Fr. Luis Viza drew it from his cassock pocket &mdash; he had guessed rightly and brought it along. Rizal kissed it and set it on the table where he wrote <em>Mi &Uacute;ltimo Adi&oacute;s</em>.</p>
+          <header class="slide-head reveal">
+            <p class="eyebrow">13 &middot; Sculptural Works in Ateneo</p>
+            <h2>Carved in Batikuling</h2>
+            <div class="rule-orn"></div>
+          </header>
+          <p class="body-text reveal d1">With nothing but a pocket-knife and a block of <span class="term-tip" data-def="A soft, fine-grained Philippine hardwood ideal for intricate religious statuettes.">batikuling</span> hardwood, Rizal carved an image of the Virgin Mary so fine it startled his Jesuit professors. Impressed, Fr. Jos&eacute; Lleonart asked for a Sacred Heart of Jesus next; days later, Rizal delivered a nine-inch statuette.</p>
+          <p class="body-text reveal d2">Lleonart meant to carry it home to Spain but, absent-minded, left it behind. The boarding students mounted it above the dormitory door, where it stayed for twenty years &mdash; a quiet honor to their school&rsquo;s greatest alumnus.</p>
+          <p class="pull-quote reveal d3">Other times, Brother, other times. I no longer believe in such things.<cite>&mdash; Rizal, on seeing the carving again years later, as a young liberal</cite></p>
+          <p class="body-text reveal">Yet decades on, awaiting execution in Fort Santiago, Rizal asked a visiting Jesuit whether the little carving still existed. Fr. Luis Viza drew it from his cassock pocket &mdash; he had guessed rightly and brought it along. Rizal kissed it and set it on the table where he wrote <em class="term-tip" data-def="'My Last Farewell' — the masterpiece poem Rizal wrote in Fort Santiago on the eve of his execution.">Mi &Uacute;ltimo Adi&oacute;s</em>.</p>
         </div>
       </div>
     </div>
@@ -886,15 +1036,15 @@
       <div class="ledger-list reveal d2">
         <div class="lyear">
           <span class="lyear-tag">1874</span>
-          <div class="lyear-items"><b>Mi Primera Inspiraci&oacute;n</b> <span class="es">(My First Inspiration)</span> &mdash; his first known poem, written before he turned fourteen, for his mother&rsquo;s birthday, glad at her release from prison.</div>
+          <div class="lyear-items"><b class="term-tip" data-def="'My First Inspiration' — Rizal's first known poem, written before age 14 for his mother's birthday upon her release from jail.">Mi Primera Inspiraci&oacute;n</b> <span class="es">(My First Inspiration)</span> &mdash; his first known poem, written before he turned fourteen, for his mother&rsquo;s birthday, glad at her release from prison.</div>
         </div>
         <div class="lyear">
           <span class="lyear-tag">1875</span>
-          <div class="lyear-items">Felicitaci&oacute;n &middot; El Embarque: Himno a la Flota de Magallanes &middot; Y Es Espa&ntilde;ol: Elcano, el Primero en dar la Vuelta al Mundo &middot; El Combate: Urbiztondo, Terror de Jol&oacute;</div>
+          <div class="lyear-items">Felicitaci&oacute;n &middot; El Embarque: Himno a la Flota de <span class="term-tip" data-def="Ferdinand Magellan — explorer who led the Spanish expedition to the Philippines in 1521.">Magallanes</span> &middot; Y Es Espa&ntilde;ol: <span class="term-tip" data-def="Juan Sebastián Elcano — Spanish navigator who completed the first global circumnavigation.">Elcano</span>, el Primero en dar la Vuelta al Mundo &middot; El Combate: Urbiztondo, Terror de Jol&oacute;</div>
         </div>
         <div class="lyear">
           <span class="lyear-tag">1876</span>
-          <div class="lyear-items">Un Recuerdo a Mi Pueblo &middot; Alianza &Iacute;ntima Entre la Religi&oacute;n y la Buena Educaci&oacute;n &middot; Por la Educaci&oacute;n Recibe Lustre la Patria &middot; El Cautiverio y el Triunfo &middot; La Entrada Triunfal de los Reyes Cat&oacute;licos en Granada &middot; Al Ni&ntilde;o Jes&uacute;s</div>
+          <div class="lyear-items"><span class="term-tip" data-def="'In Memory of My Town' — poem paying tribute to his beloved childhood home in Calamba.">Un Recuerdo a Mi Pueblo</span> &middot; Alianza &Iacute;ntima Entre la Religi&oacute;n y la Buena Educaci&oacute;n &middot; <span class="term-tip" data-def="'Through Education Our Motherland Receives Light' — championing education as the foundation of progress.">Por la Educaci&oacute;n Recibe Lustre la Patria</span> &middot; El Cautiverio y el Triunfo &middot; La Entrada Triunfal de los Reyes Cat&oacute;licos en Granada &middot; Al Ni&ntilde;o Jes&uacute;s</div>
         </div>
       </div>
     </div>
@@ -912,13 +1062,13 @@
       <p class="lede reveal d1">Rizal&rsquo;s two surviving plays carry the date 1880 &mdash; by then he was nineteen and studying at the University of Santo Tomas &mdash; but both grew directly out of his Ateneo grounding, and one was written for the Ateneo stage itself.</p>
       <div class="split reveal d2">
         <div class="vcard" style="padding:26px 24px;">
-          <span class="vnum">Zarzuela</span>
-          <h3>Junto al Pasig</h3>
+          <span class="vnum term-tip" data-def="A traditional Spanish lyric-dramatic musical play alternating between spoken dialogue and songs.">Zarzuela</span>
+          <h3><span class="term-tip" data-def="'Beside the Pasig' — a 1-act zarzuela staged at the Ateneo on Dec 8, 1880 for the Immaculate Conception feast.">Junto al Pasig</span></h3>
           <p><em>(Beside the Pasig)</em> &mdash; a one-act zarzuela in traditional octosyllabic Spanish verse, staged by Ateneo students on December 8, 1880, for the school&rsquo;s patronal feast, the Immaculate Conception. Rizal wrote it as president of the Ateneo&rsquo;s own Academy of Spanish Literature.</p>
         </div>
         <div class="vcard" style="padding:26px 24px;">
-          <span class="vnum">Allegory</span>
-          <h3>El Consejo de los Dioses</h3>
+          <span class="vnum term-tip" data-def="A literary device using symbolic characters and narrative to convey deeper moral or philosophical truths.">Allegory</span>
+          <h3><span class="term-tip" data-def="'The Council of the Gods' — prize-winning allegorical drama judging Homer, Virgil, and Cervantes.">El Consejo de los Dioses</span></h3>
           <p><em>(The Council of the Gods)</em> &mdash; the gods of Olympus convene to judge the greatest writer of all: Homer, Virgil, or Cervantes. Entered in a Manila contest marking Cervantes&rsquo;s death centennial, it won first prize.</p>
         </div>
       </div>
@@ -960,7 +1110,7 @@
             <h2>The First Romance</h2>
             <div class="rule-orn"></div>
           </header>
-          <p class="body-text reveal d1">Days after graduation, sixteen-year-old Jose visited his grandmother in Trozo, Manila, with his friend Mariano Katigbak. Mariano had brought his sister &mdash; fourteen-year-old <strong>Segunda Katigbak</strong>, a Batangue&ntilde;a from Lipa, boarding at La Concordia College, where Rizal&rsquo;s own sister Olimpia studied.</p>
+          <p class="body-text reveal d1">Days after graduation, sixteen-year-old Jose visited his grandmother in Trozo, Manila, with his friend Mariano Katigbak. Mariano had brought his sister &mdash; fourteen-year-old <strong>Segunda Katigbak</strong>, a Batangue&ntilde;a from Lipa, boarding at <span class="term-tip" data-def="Historic Catholic girls' boarding school in Paco, Manila, where Segunda Katigbak studied.">La Concordia College</span>, where Rizal&rsquo;s own sister Olimpia studied.</p>
           <p class="body-text reveal d2">He described her later as having &ldquo;eyes that were eloquent and ardent at times and languid at others&hellip; an enchanting and provocative smile.&rdquo; Asked to sketch her portrait, he obliged &mdash; reluctantly, he claimed &mdash; though he kept visiting his sister at La Concordia every week, just to see Segunda again.</p>
           <p class="body-text reveal d3">It went nowhere: she was already promised to a townmate, Manuel Luz. Too proper, too shy, to compete for her, Rizal quietly let it go.</p>
         </div>
@@ -980,7 +1130,7 @@
       <div class="close-stamp reveal d3">
         <b>Filed under:</b> Chapter 4 &middot; Reporter No. 1<br>
         <b>Subject:</b> Rizal at the Ateneo Municipal de Manila, 1872&ndash;1877<br>
-        <b>Status:</b> Bachiller en Artes, con notas de sobresaliente
+        <b>Status:</b> <span class="term-tip" data-def="'Bachelor of Arts, with highest academic grades of outstanding.'">Bachiller en Artes, con notas de sobresaliente</span>
       </div>
       <p class="close-sources reveal">Sources: Jos&eacute; Rizal&rsquo;s own <em>Memorias de un Estudiante de Manila</em>; standard biographical accounts of Rizal&rsquo;s Ateneo years (Zaide &amp; Zaide, Coates, Guerrero); photographs courtesy of Wikimedia Commons, public domain.</p>
     </div>
@@ -991,8 +1141,18 @@
 <!-- ============ CONTROLS ============ -->
 <div class="deck-controls">
   <button id="prevBtn" aria-label="Previous section"><svg><use href="#icon-chevron-left"/></svg></button>
-  <div class="deck-counter"><span id="curNum">01</span>/<span id="totalNum">19</span></div>
+  <div class="deck-counter"><span id="curNum">00</span>/<span id="totalNum">18</span></div>
   <button id="nextBtn" aria-label="Next section"><svg><use href="#icon-chevron-right"/></svg></button>
+</div>
+
+<!-- ============ IMAGE LIGHTBOX MODAL ============ -->
+<div class="lightbox-overlay" id="lightboxModal" role="dialog" aria-modal="true" aria-label="Image viewer">
+  <button class="lightbox-close" id="lightboxClose" aria-label="Close image viewer">&times;</button>
+  <div class="lightbox-content">
+    <img id="lightboxImg" src="" alt="">
+    <p class="lightbox-caption" id="lightboxCaption"></p>
+    <span class="lightbox-hint">Click anywhere or press <kbd>ESC</kbd> to close</span>
+  </div>
 </div>
 
 <script>
@@ -1005,7 +1165,7 @@
   var totalNum = document.getElementById('totalNum');
   var activeIndex = 0;
 
-  totalNum.textContent = String(slides.length).padStart(2,'0');
+  totalNum.textContent = String(slides.length - 1).padStart(2,'0');
 
   function goTo(i){
     i = Math.max(0, Math.min(slides.length - 1, i));
@@ -1014,7 +1174,19 @@
 
   document.getElementById('nextBtn').addEventListener('click', function(){ goTo(activeIndex + 1); });
   document.getElementById('prevBtn').addEventListener('click', function(){ goTo(activeIndex - 1); });
-  document.getElementById('beginBtn').addEventListener('click', function(){ goTo(1); });
+  
+  var beginBtn = document.getElementById('beginBtn');
+  if(beginBtn){
+    beginBtn.addEventListener('click', function(){ goTo(1); });
+  }
+
+  var railBrand = document.getElementById('railBrand');
+  if(railBrand){
+    railBrand.addEventListener('click', function(){
+      goTo(0);
+      closeRailMobile();
+    });
+  }
 
   railButtons.forEach(function(btn){
     btn.addEventListener('click', function(){
@@ -1026,25 +1198,45 @@
   window.addEventListener('keydown', function(e){
     var tag = (document.activeElement && document.activeElement.tagName) || '';
     if(tag === 'INPUT' || tag === 'TEXTAREA') return;
-    if(e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === 'PageDown'){ e.preventDefault(); goTo(activeIndex + 1); }
-    else if(e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'PageUp'){ e.preventDefault(); goTo(activeIndex - 1); }
+
+    if(lightboxModal && lightboxModal.classList.contains('show')){
+      if(e.key === 'Escape'){ closeLightbox(); }
+      return;
+    }
+
+    if(e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === 'PageDown' || (e.key === ' ' && !e.shiftKey)){
+      e.preventDefault();
+      goTo(activeIndex + 1);
+    }
+    else if(e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'PageUp' || (e.key === ' ' && e.shiftKey)){
+      e.preventDefault();
+      goTo(activeIndex - 1);
+    }
     else if(e.key === 'Home'){ e.preventDefault(); goTo(0); }
     else if(e.key === 'End'){ e.preventDefault(); goTo(slides.length - 1); }
+    else if(e.key === 'f' || e.key === 'F'){
+      if(!document.fullscreenElement){
+        document.documentElement.requestFullscreen().catch(function(){});
+      } else {
+        document.exitFullscreen().catch(function(){});
+      }
+    }
   });
 
   function setActive(i){
     activeIndex = i;
-    railButtons.forEach(function(b, bi){ b.classList.toggle('active', bi === i); });
-    curNum.textContent = String(i + 1).padStart(2, '0');
+    railButtons.forEach(function(b){
+      var bi = parseInt(b.getAttribute('data-i'), 10);
+      b.classList.toggle('active', bi === i);
+    });
+    if(railBrand){ railBrand.classList.toggle('active', i === 0); }
+    curNum.textContent = String(i).padStart(2, '0');
     progressFill.style.width = (i / (slides.length - 1)) * 100 + '%';
-    var activeBtn = railButtons[i];
+    var activeBtn = document.querySelector('#railList button[data-i="' + i + '"]');
     if(activeBtn && activeBtn.scrollIntoView){ activeBtn.scrollIntoView({block:'nearest'}); }
   }
 
-  /* --- Scroll-based active slide detection ---
-     IntersectionObserver with threshold:0.5 breaks on slides taller than the
-     viewport (intersectionRatio never reaches 0.5), causing the page-turner
-     buttons to navigate from the wrong index. Scroll position is reliable. */
+  /* --- Scroll-based active slide detection --- */
   var scrollRaf;
   deck.addEventListener('scroll', function(){
     if(scrollRaf) cancelAnimationFrame(scrollRaf);
@@ -1114,6 +1306,62 @@
       railCollapseBtn.setAttribute('title', collapsed ? 'Expand sidebar' : 'Collapse sidebar');
     });
   }
+
+  /* --- Image Lightbox Modal --- */
+  var lightboxModal = document.getElementById('lightboxModal');
+  var lightboxImg = document.getElementById('lightboxImg');
+  var lightboxCaption = document.getElementById('lightboxCaption');
+  var lightboxClose = document.getElementById('lightboxClose');
+
+  function openLightbox(src, alt, captionText){
+    if(!lightboxModal || !src) return;
+    lightboxImg.src = src;
+    lightboxImg.alt = alt || '';
+    lightboxCaption.textContent = captionText || alt || '';
+    lightboxModal.classList.add('show');
+  }
+
+  function closeLightbox(){
+    if(lightboxModal){
+      lightboxModal.classList.remove('show');
+      lightboxImg.src = '';
+    }
+  }
+
+  document.querySelectorAll('.photo-frame, .cover-media').forEach(function(frame){
+    var img = frame.querySelector('img');
+    var box = frame.querySelector('.img-box');
+    var captionEl = frame.querySelector('.photo-caption') || frame.querySelector('.m-caption');
+    if(img && box){
+      box.addEventListener('click', function(e){
+        e.stopPropagation();
+        var captionText = captionEl ? captionEl.textContent.trim() : (img.getAttribute('alt') || '');
+        openLightbox(img.currentSrc || img.src, img.getAttribute('alt'), captionText);
+      });
+    }
+  });
+
+  if(lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
+  if(lightboxModal){
+    lightboxModal.addEventListener('click', function(e){
+      if(e.target === lightboxModal || e.target.classList.contains('lightbox-content')){
+        closeLightbox();
+      }
+    });
+  }
+
+  /* --- Mobile Tooltip Touch Handler --- */
+  document.querySelectorAll('.term-tip').forEach(function(tip){
+    tip.addEventListener('click', function(e){
+      e.stopPropagation();
+      var wasActive = tip.classList.contains('active-tip');
+      document.querySelectorAll('.term-tip.active-tip').forEach(function(t){ t.classList.remove('active-tip'); });
+      if(!wasActive){ tip.classList.add('active-tip'); }
+    });
+  });
+  document.addEventListener('click', function(){
+    document.querySelectorAll('.term-tip.active-tip').forEach(function(t){ t.classList.remove('active-tip'); });
+  });
 
   setActive(0);
 })();
