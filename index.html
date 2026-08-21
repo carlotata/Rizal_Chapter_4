@@ -300,7 +300,8 @@
     align-items:center;justify-content:center;
     box-shadow:0 6px 18px rgba(0,0,0,0.32);
     border-radius:4px;
-    transition:left .3s cubic-bezier(0.2,0,0,1), top .3s ease, width .2s, height .2s, background .2s, border-color .2s, color .2s;
+    transform:translateX(0);
+    transition:transform .3s cubic-bezier(0.2,0,0,1), background .2s, border-color .2s, color .2s;
   }
   .nav-toggle svg{width:18px;height:18px;}
   .nav-toggle:hover{background:var(--navy-soft);border-color:var(--brass-light);color:var(--paper);}
@@ -321,10 +322,7 @@
     body.rail-open .rail-overlay{display:block;}
     .nav-toggle{display:flex;}
     body.rail-open .nav-toggle{
-      left:calc(min(82vw, 320px) - 48px);
-      top:27px;
-      width:34px;
-      height:34px;
+      transform:translateX(calc(min(82vw, 320px) - 72px));
       box-shadow:none;
       border:1px solid rgba(243,236,218,0.16);
       background:rgba(243,236,218,0.06);
@@ -393,7 +391,6 @@
 
   /* ---------- interactive tooltips ---------- */
   .term-tip{
-    position:relative;
     display:inline;
     border-bottom:1.5px dotted var(--brass);
     cursor:help;
@@ -401,13 +398,13 @@
     text-decoration:none;
     transition:border-color .2s;
   }
-  .term-tip:hover{border-bottom-color:var(--garnet);}
-  .term-tip::after{
-    content:attr(data-def);
-    position:absolute;
-    bottom:calc(100% + 8px);
-    left:50%;
-    transform:translateX(-50%) translateY(4px);
+  .term-tip:hover, .term-tip:focus, .term-tip.active-tip{
+    border-bottom-color:var(--garnet);
+    outline:none;
+  }
+  .global-tooltip{
+    position:fixed;
+    z-index:9000;
     background:var(--navy);
     color:#F3ECDA;
     font-family:var(--font-mono);
@@ -418,43 +415,42 @@
     letter-spacing:0.02em;
     padding:8px 12px;
     border:1px solid var(--brass);
-    border-radius:3px;
+    border-radius:4px;
     box-shadow:0 10px 28px rgba(0,0,0,0.45);
     white-space:normal;
     width:max-content;
-    max-width:280px;
+    max-width:min(280px, calc(100vw - 24px));
     pointer-events:none;
     opacity:0;
     visibility:hidden;
+    transform:translateY(4px);
     transition:opacity .2s ease, transform .2s ease, visibility .2s;
-    z-index:80;
     text-align:left;
   }
-  .term-tip::before{
+  .global-tooltip.show{
+    opacity:1;
+    visibility:visible;
+    transform:translateY(0);
+  }
+  .global-tooltip::after{
     content:'';
     position:absolute;
-    bottom:calc(100% + 2px);
-    left:50%;
-    transform:translateX(-50%);
-    border-width:6px 6px 0 6px;
+    width:0;
+    height:0;
     border-style:solid;
+    left:var(--arrow-left, 50%);
+    transform:translateX(-50%);
+    pointer-events:none;
+  }
+  .global-tooltip.tip-above::after{
+    bottom:-6px;
+    border-width:6px 6px 0 6px;
     border-color:var(--navy) transparent transparent transparent;
-    opacity:0;
-    visibility:hidden;
-    transition:opacity .2s ease, visibility .2s;
-    z-index:81;
   }
-  .term-tip:hover::after, .term-tip:focus::after, .term-tip.active-tip::after{
-    opacity:1;
-    visibility:visible;
-    transform:translateX(-50%) translateY(0);
-  }
-  .term-tip:hover::before, .term-tip:focus::before, .term-tip.active-tip::before{
-    opacity:1;
-    visibility:visible;
-  }
-  @media (max-width:600px){
-    .term-tip::after{max-width:210px;font-size:11px;}
+  .global-tooltip.tip-below::after{
+    top:-6px;
+    border-width:0 6px 6px 6px;
+    border-color:transparent transparent var(--navy) transparent;
   }
 
   /* ---------- image lightbox ---------- */
@@ -479,7 +475,7 @@
   .lightbox-overlay{
     position:fixed;inset:0;background:rgba(10,16,24,0.92);
     backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-    z-index:100;display:flex;align-items:center;justify-content:center;
+    z-index:10000;display:flex;align-items:center;justify-content:center;
     padding:24px;opacity:0;pointer-events:none;
     transition:opacity .25s ease;
   }
@@ -1155,6 +1151,9 @@
   </div>
 </div>
 
+<!-- ============ GLOBAL FLOATING TOOLTIP ============ -->
+<div class="global-tooltip" id="globalTooltip" role="tooltip" aria-live="polite"></div>
+
 <script>
 (function(){
   var deck = document.getElementById('deck');
@@ -1350,17 +1349,112 @@
     });
   }
 
-  /* --- Mobile Tooltip Touch Handler --- */
+  /* --- Floating Tooltip Engine --- */
+  var tooltipEl = document.getElementById('globalTooltip');
+  var activeTipEl = null;
+
+  function positionTooltip(targetEl){
+    if(!tooltipEl || !targetEl) return;
+    var defText = targetEl.getAttribute('data-def');
+    if(!defText) return;
+
+    tooltipEl.textContent = defText;
+    tooltipEl.style.left = '-9999px';
+    tooltipEl.style.top = '-9999px';
+    tooltipEl.classList.add('show');
+
+    var targetRect = targetEl.getBoundingClientRect();
+    var tipRect = tooltipEl.getBoundingClientRect();
+    var vw = window.innerWidth || document.documentElement.clientWidth;
+    var vh = window.innerHeight || document.documentElement.clientHeight;
+    var margin = 12;
+
+    if(targetRect.bottom < 0 || targetRect.top > vh || targetRect.right < 0 || targetRect.left > vw){
+      hideTip();
+      return;
+    }
+
+    var targetCenter = targetRect.left + (targetRect.width / 2);
+    var tipLeft = targetCenter - (tipRect.width / 2);
+    var minLeft = margin;
+    var maxLeft = vw - tipRect.width - margin;
+
+    if(maxLeft < minLeft){
+      tipLeft = margin;
+    } else {
+      tipLeft = Math.max(minLeft, Math.min(maxLeft, tipLeft));
+    }
+
+    var arrowLeft = targetCenter - tipLeft;
+    arrowLeft = Math.max(12, Math.min(tipRect.width - 12, arrowLeft));
+    tooltipEl.style.setProperty('--arrow-left', arrowLeft + 'px');
+
+    var tipTop = targetRect.top - tipRect.height - 8;
+    if(tipTop < 10){
+      tipTop = targetRect.bottom + 8;
+      if(tipTop + tipRect.height > vh - 10){
+        tipTop = Math.max(10, vh - tipRect.height - 10);
+      }
+      tooltipEl.classList.remove('tip-above');
+      tooltipEl.classList.add('tip-below');
+    } else {
+      tooltipEl.classList.remove('tip-below');
+      tooltipEl.classList.add('tip-above');
+    }
+
+    tooltipEl.style.left = Math.round(tipLeft) + 'px';
+    tooltipEl.style.top = Math.round(tipTop) + 'px';
+  }
+
+  function showTip(targetEl){
+    if(activeTipEl && activeTipEl !== targetEl){
+      activeTipEl.classList.remove('active-tip');
+    }
+    activeTipEl = targetEl;
+    targetEl.classList.add('active-tip');
+    positionTooltip(targetEl);
+  }
+
+  function hideTip(){
+    if(activeTipEl){
+      activeTipEl.classList.remove('active-tip');
+      activeTipEl = null;
+    }
+    if(tooltipEl){
+      tooltipEl.classList.remove('show', 'tip-above', 'tip-below');
+    }
+  }
+
   document.querySelectorAll('.term-tip').forEach(function(tip){
+    if(!tip.hasAttribute('tabindex')){
+      tip.setAttribute('tabindex', '0');
+    }
+    tip.addEventListener('mouseenter', function(){ showTip(tip); });
+    tip.addEventListener('mouseleave', function(){ hideTip(); });
+    tip.addEventListener('focus', function(){ showTip(tip); });
+    tip.addEventListener('blur', function(){ hideTip(); });
     tip.addEventListener('click', function(e){
       e.stopPropagation();
-      var wasActive = tip.classList.contains('active-tip');
-      document.querySelectorAll('.term-tip.active-tip').forEach(function(t){ t.classList.remove('active-tip'); });
-      if(!wasActive){ tip.classList.add('active-tip'); }
+      if(activeTipEl === tip && tooltipEl && tooltipEl.classList.contains('show')){
+        hideTip();
+      } else {
+        showTip(tip);
+      }
     });
   });
-  document.addEventListener('click', function(){
-    document.querySelectorAll('.term-tip.active-tip').forEach(function(t){ t.classList.remove('active-tip'); });
+
+  document.addEventListener('click', function(e){
+    if(activeTipEl && !activeTipEl.contains(e.target)){
+      hideTip();
+    }
+  });
+
+  deck.addEventListener('scroll', function(){
+    if(activeTipEl){ positionTooltip(activeTipEl); }
+  }, { passive: true });
+
+  window.addEventListener('resize', function(){
+    if(activeTipEl){ positionTooltip(activeTipEl); }
   });
 
   setActive(0);
