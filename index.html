@@ -503,12 +503,83 @@
     background:rgba(243,236,218,0.12);border:1px solid rgba(243,236,218,0.25);
     padding:1px 5px;border-radius:2px;font-size:10px;color:var(--brass-light);
   }
-  .lightbox-close{
-    position:absolute;top:20px;right:24px;background:none;border:none;
-    color:var(--brass-light);font-size:36px;cursor:pointer;line-height:1;
-    padding:4px 10px;border-radius:3px;transition:color .2s, transform .15s;
-  }
   .lightbox-close:hover{color:#fff;transform:scale(1.1);}
+
+  /* ---------- download modal & buttons ---------- */
+  .rail-foot-dl{
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    width:100%;background:rgba(173,124,52,0.18);color:var(--paper);
+    border:1px solid rgba(243,236,218,0.25);
+    font-family:var(--font-mono);font-size:11.5px;letter-spacing:0.06em;
+    text-transform:uppercase;padding:9px 12px;border-radius:4px;
+    cursor:pointer;margin-bottom:12px;transition:all .2s;
+  }
+  .rail-foot-dl:hover{background:var(--brass);border-color:var(--brass-light);color:#fff;transform:translateY(-1px);}
+  .rail-foot-dl svg{width:14px;height:14px;}
+
+  .cover-scroll.dl-alt{
+    border-color:rgba(173,124,52,0.5);color:var(--brass-light);
+  }
+  .cover-scroll.dl-alt:hover{
+    border-color:var(--brass-light);background:rgba(173,124,52,0.2);color:#fff;
+  }
+
+  .download-modal-overlay{
+    position:fixed;inset:0;background:rgba(10,16,24,0.85);
+    backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    z-index:9500;display:flex;align-items:center;justify-content:center;
+    padding:20px;opacity:0;pointer-events:none;
+    transition:opacity .25s ease;
+  }
+  .download-modal-overlay.show{opacity:1;pointer-events:auto;}
+  .download-card{
+    background:var(--paper);color:var(--ink);
+    border:2px solid var(--brass);border-radius:6px;
+    max-width:500px;width:100%;padding:28px 24px;
+    box-shadow:0 24px 60px rgba(0,0,0,0.5);
+    transform:scale(0.95);transition:transform .25s cubic-bezier(0.2,0,0,1);
+    position:relative;
+  }
+  .download-modal-overlay.show .download-card{transform:scale(1);}
+  .download-card h3{font-family:var(--font-display);font-size:22px;color:var(--navy);margin-bottom:8px;}
+  .download-card p{font-size:14px;color:var(--ink-soft);line-height:1.6;margin-bottom:20px;}
+  .download-options{display:flex;flex-direction:column;gap:12px;}
+  .download-opt{
+    display:flex;align-items:center;justify-content:space-between;
+    background:var(--paper2);border:1px solid var(--rule-strong);
+    padding:14px 16px;border-radius:4px;text-decoration:none;
+    color:inherit;transition:all .2s;cursor:pointer;
+  }
+  .download-opt:hover{border-color:var(--brass);background:var(--paper3);transform:translateX(3px);}
+  .download-opt-info b{display:block;font-family:var(--font-mono);font-size:13px;color:var(--navy);}
+  .download-opt-info span{display:block;font-size:12px;color:var(--sepia);margin-top:3px;}
+  .download-opt-tag{
+    font-family:var(--font-mono);font-size:11px;font-weight:700;
+    padding:5px 9px;border-radius:3px;background:var(--navy);color:var(--brass-light);
+    flex-shrink:0;margin-left:12px;
+  }
+  .download-close{
+    position:absolute;top:16px;right:18px;background:none;border:none;
+    color:var(--sepia);font-size:26px;cursor:pointer;line-height:1;
+    padding:2px 8px;border-radius:3px;transition:color .2s;
+  }
+  .download-close:hover{color:var(--garnet);}
+
+  /* ---------- print styles for PDF export ---------- */
+  @media print{
+    :root{--rail-w:0px;}
+    body, #deck{height:auto !important;overflow:visible !important;background:#fff !important;color:#000 !important;}
+    .ledger-rail, .nav-toggle, .progress-track, .deck-controls, .rail-overlay, .stamp, .download-modal-overlay, #railCollapseBtn, .lightbox-overlay{display:none !important;}
+    #deck{margin-left:0 !important;}
+    .slide{
+      min-height:0 !important;padding:40px 40px !important;
+      page-break-after:always;break-after:page;
+      border-bottom:1px solid #ccc !important;
+      background:none !important;
+    }
+    .reveal{opacity:1 !important;transform:none !important;}
+    .photo-frame img, .cover-media img{filter:none !important;}
+  }
 </style>
 </head>
 <body>
@@ -521,6 +592,7 @@
   <symbol id="icon-down" viewBox="0 0 24 24"><path d="M12 4v14M6 12l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="icon-medal" viewBox="0 0 48 48"><circle cx="24" cy="18" r="13" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="24" cy="18" r="7.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M17 29 L12 43 L20 38 L24 43 L28 38 L36 43 L31 29" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></symbol>
   <symbol id="icon-picture" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="8.5" cy="9.5" r="1.6" fill="currentColor"/><path d="M21 16l-5.5-6-4 4.5L9 12l-6 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+  <symbol id="icon-download" viewBox="0 0 24 24"><path d="M12 15V3m0 12l-4-4m4 4l4-4M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 </svg>
 
 <!-- ============ NAV RAIL ============ -->
@@ -552,7 +624,10 @@
     <li><button data-i="17"><span class="rn">17</span> First Romance</button></li>
     <li><button data-i="18"><span class="rn">18</span> Closing the Chapter</button></li>
   </ol>
-  <div class="rail-foot">Chapter 4 &middot; Reporter No. 1</div>
+  <div class="rail-foot">
+    <button class="rail-foot-dl" id="railDownloadBtn" title="Download presentation files"><svg><use href="#icon-download"/></svg> Download</button>
+    Chapter 4 &middot; Reporter No. 1
+  </div>
 </nav>
 
 <button id="railCollapseBtn" class="rail-collapse-btn" aria-label="Collapse sidebar" title="Collapse sidebar">
@@ -573,7 +648,10 @@
         <h1>Scholastic Triumphs<br>at Ateneo de Manila</h1>
         <p class="cover-sub">How an eleven-year-old <span class="term-tip" data-def="A native of the provinces outside Manila (in Rizal's case, Calamba, Laguna).">provinciano</span> from Calamba, arriving in a city still shadowed by execution and imprisonment, became &ldquo;the pride of the Jesuits&rdquo; &mdash; the making of Jos&eacute; Rizal, 1872&ndash;1877.</p>
         <p class="cover-meta">Ateneo Municipal de Manila &middot; <span class="term-tip" data-def="The historic 0.67 km² walled city of Manila, seat of Spanish colonial government.">Intramuros</span></p>
-        <button class="cover-scroll" id="beginBtn">Begin the record <svg><use href="#icon-down"/></svg></button>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:56px;">
+          <button class="cover-scroll" id="beginBtn" style="margin-top:0;">Begin the record <svg><use href="#icon-down"/></svg></button>
+          <button class="cover-scroll dl-alt" id="coverDownloadBtn" style="margin-top:0;"><svg><use href="#icon-download"/></svg> Save / Export</button>
+        </div>
       </div>
       <div class="cover-media">
         <div class="img-box">
@@ -1151,6 +1229,41 @@
   </div>
 </div>
 
+<!-- ============ DOWNLOAD OPTIONS MODAL ============ -->
+<div class="download-modal-overlay" id="downloadModal" role="dialog" aria-modal="true" aria-label="Download presentation">
+  <div class="download-card">
+    <button class="download-close" id="downloadClose" aria-label="Close download modal">&times;</button>
+    <h3>Download Presentation</h3>
+    <p>Choose your preferred file format to save Chapter 4 for offline presentation and reading:</p>
+
+    <div class="download-options">
+      <a class="download-opt" id="dlStandalone" href="Rizal_Chapter_4_Standalone.html" download="Rizal_Chapter_4_Standalone.html">
+        <div class="download-opt-info">
+          <b>Offline Web Application (Recommended)</b>
+          <span>Single-file bundle with all embedded photos & full interactivity</span>
+        </div>
+        <span class="download-opt-tag">.HTML (2.6 MB)</span>
+      </a>
+
+      <a class="download-opt" id="dlZip" href="Rizal_Chapter_4_Package.zip" download="Rizal_Chapter_4_Package.zip">
+        <div class="download-opt-info">
+          <b>Complete Web Package</b>
+          <span>ZIP archive containing HTML source and photo directory</span>
+        </div>
+        <span class="download-opt-tag">.ZIP (1.8 MB)</span>
+      </a>
+
+      <button class="download-opt" id="dlPdf" style="text-align:left;width:100%;">
+        <div class="download-opt-info">
+          <b>Export as PDF Document</b>
+          <span>Formatted print document suitable for printing or e-book readers</span>
+        </div>
+        <span class="download-opt-tag">.PDF</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ============ GLOBAL FLOATING TOOLTIP ============ -->
 <div class="global-tooltip" id="globalTooltip" role="tooltip" aria-live="polite"></div>
 
@@ -1456,6 +1569,38 @@
   window.addEventListener('resize', function(){
     if(activeTipEl){ positionTooltip(activeTipEl); }
   });
+
+  /* --- Download Modal Controls --- */
+  var downloadModal = document.getElementById('downloadModal');
+  var railDownloadBtn = document.getElementById('railDownloadBtn');
+  var coverDownloadBtn = document.getElementById('coverDownloadBtn');
+  var downloadClose = document.getElementById('downloadClose');
+  var dlPdfBtn = document.getElementById('dlPdf');
+
+  function openDownloadModal(){
+    if(downloadModal) downloadModal.classList.add('show');
+  }
+  function closeDownloadModal(){
+    if(downloadModal) downloadModal.classList.remove('show');
+  }
+
+  if(railDownloadBtn) railDownloadBtn.addEventListener('click', openDownloadModal);
+  if(coverDownloadBtn) coverDownloadBtn.addEventListener('click', openDownloadModal);
+  if(downloadClose) downloadClose.addEventListener('click', closeDownloadModal);
+  if(downloadModal){
+    downloadModal.addEventListener('click', function(e){
+      if(e.target === downloadModal){
+        closeDownloadModal();
+      }
+    });
+  }
+
+  if(dlPdfBtn){
+    dlPdfBtn.addEventListener('click', function(){
+      closeDownloadModal();
+      setTimeout(function(){ window.print(); }, 200);
+    });
+  }
 
   setActive(0);
 })();
